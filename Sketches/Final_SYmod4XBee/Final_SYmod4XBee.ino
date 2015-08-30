@@ -18,6 +18,8 @@ const long BaudRate = 9600;           // XBee comminication SoftSerial Baud Rate
 SoftwareSerial mySerial( pinRx , pinTx );// Initialize the SoftSerial
 char xbByte;  //from 0 to 255. 
 String incomingString;
+String inputString = "";
+boolean stringComplete = false;
 
 #define NeoPixelPIN   6
 
@@ -97,6 +99,12 @@ void loop() {
       incomingString+=xbByte;
     }
   }
+   if (stringComplete) {
+    Serial.println(inputString); 
+    // clear the string:
+    inputString = "";
+    stringComplete = false;
+   }
   delay(10);
 }
   
@@ -113,8 +121,8 @@ void processXBee_data(char xbByte) {
    
 
     if (incomingString == "f") { //forward 'f' 102
-      //myservo_left.read();
-      //myservo_right.read(); 
+      myservo_left.read();
+      myservo_right.read(); 
       myservo_left.write(60);              // tell servo to go to position in variable 'pos'
       myservo_right.write(120);       // tell servo to go to position in variable 'pos'
       Serial.println(incomingString);  
@@ -156,4 +164,18 @@ void processXBee_data(char xbByte) {
      // myservo_head.write(60); // 1.5 ms stay-still signal   
   }
  Serial.println("Done"); 
+}
+
+void serialEvent() {
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read(); 
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+    } 
+  }
 }
