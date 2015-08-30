@@ -27,22 +27,21 @@ void setup() {
   Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  myservo_left.attach(3);  // attaches the servo on pin 9 to the servo object  
-  myservo_right.attach(2);  // attaches the servo on pin 9 to the servo object   
-  myservo_head.attach(5);  // attaches the servo on pin 9 to the servo object   
-  Serial.begin(9600); 
+  //myservo_left.attach(3);  // attaches the servo on pin 9 to the servo object  
+  //myservo_right.attach(2);  // attaches the servo on pin 9 to the servo object   
+  //myservo_head.attach(5);  // attaches the servo on pin 9 to the servo object   
   
-  irrecv.enableIRIn(); // Start the receiver
-  myservo_head.write(120); // current zero position of the head servo (needs to be adjusted in final build)
+  //irrecv.enableIRIn(); // Start the receiver
+//  myservo_head.write(120); // current zero position of the head servo (needs to be adjusted in final build)
 //  myservo_left.write(90);
 //  myservo_right.write(90);
 
-myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
-myservo_right.writeMicroseconds(1460); // 1.5 ms stay-still signa
+//myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
+//myservo_right.writeMicroseconds(1460); // 1.5 ms stay-still signa
 }
 
 void loop() {
-  if ((millis() - startTime) > 50) {
+  if ((millis() - startTime) > 1000) {
     startTime = millis();
     uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
     color = uS / US_ROUNDTRIP_CM;
@@ -72,54 +71,4 @@ uint32_t Wheel(byte WheelPos) {
   }
 }
 
-void IR(){
-   if (irrecv.decode(&results)) {
-   // Serial.println(results.value, HEX);
-    String IRsignal = String(results.value,HEX);
-    int num = IRsignal.length();
-    IRsignal_short = IRsignal.substring(num-3,num);
-    Serial.println(IRsignal_short);
-    irrecv.resume(); // Receive the next value
-  }
- 
-  if (IRsignal_short == "058") {   //forward
-        myservo_left.write(180);              // tell servo to go to position in variable 'pos' 
-        myservo_right.write(00);              // tell servo to go to position in variable 'pos'   
-    } 
 
- if (IRsignal_short == "059") { //back
-    myservo_left.write(00);              // tell servo to go to position in variable 'pos' 
-    myservo_right.write(180);              // tell servo to go to position in variable 'pos'
-  }
-
-  if (IRsignal_short == "05a") { //left
-     myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
-     myservo_right.write(00);              // tell servo to go to position in variable 'pos'
-  }
-
-  if (IRsignal_short == "05b") { //right
-      myservo_left.write(180);              // tell servo to go to position in variable 'pos' 
-      myservo_right.writeMicroseconds(1460);
-  } // 1.5 ms stay-st
-
-   if (IRsignal_short == "05c") { //stop
-     myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
-     myservo_right.writeMicroseconds(1460); // 1.5 ms stay-still signal
-   
-  }
-
-   if (IRsignal_short == "001") { //head left
-     myservo_head.write(180); // 1.5 ms stay-still signa
-   }
-
-
-   if (IRsignal_short == "003") { //head right
-     myservo_head.write(60); // 1.5 ms stay-still signa
-   }
-
-
-   if (IRsignal_short == "002") { //head stop
-     myservo_head.write(120); // 1.5 ms stay-still signa
-   }
- 
-}

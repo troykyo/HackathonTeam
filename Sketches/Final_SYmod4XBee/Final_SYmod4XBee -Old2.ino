@@ -16,8 +16,7 @@
 const uint8_t pinRx = 10, pinTx = 11; // XBee comminication SoftSerial pin on Arduino
 const long BaudRate = 9600;           // XBee comminication SoftSerial Baud Rate
 SoftwareSerial mySerial( pinRx , pinTx );// Initialize the SoftSerial
-char xbByte;  //from 0 to 255. 
-String incomingString;
+byte xbByte = 's';  //from 0 to 255. 
 
 #define NeoPixelPIN   6
 
@@ -77,83 +76,74 @@ void setup() {
   //myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
   //myservo_right.writeMicroseconds(1460); // 1.5 ms stay-still signa
 
-  //Serial.println("Hello world!");
+  Serial.println("Hello world!");
 }
 
 void loop() {
+  Serial.println("Ciao!");
   // XBee comminication receive data
   if (mySerial.available()>0) {
-    xbByte = (char) mySerial.read();
+    xbByte = mySerial.read();
     
   
   // else xbByte = 0; // continue the command
-    if(xbByte == '\0') {
-      Serial.println(incomingString);
+    if(0 != xbByte) {
       processXBee_data(xbByte);
-      incomingString = ""; // discontinue the command
-      Serial.println("Done xbByte");
+      xbByte = 0; // discontinue the command
     }
-    else {
-      incomingString+=xbByte;
-    }
+    
+    Serial.println(xbByte);
+    
   }
-  delay(10);
 }
   
-void processXBee_data(char xbByte) {
+void processXBee_data(byte command) {
 
     //note
     // XBee network we have set is Broadcasting network.
     // it means each robot can send message each other,
     // it also means PC can send message to every robot at the same time.
 
-    //Serial.print("xb: ");
-    //Serial.print("  ");
-    Serial.println(incomingString);
-   
+    Serial.print("xb: ");
+    Serial.write(command);
+    Serial.print("  ");
+    Serial.println(command);
+    
 
-    if (incomingString == "f") { //forward 'f' 102
-      //myservo_left.read();
-      //myservo_right.read(); 
-      myservo_left.write(60);              // tell servo to go to position in variable 'pos'
-      myservo_right.write(120);       // tell servo to go to position in variable 'pos'
-      Serial.println(incomingString);  
-  }
+    if (102 == command) { //forward 'f' 102
+      myservo_left.write(180);              // tell servo to go to position in variable 'pos'
+      myservo_right.write(00);              // tell servo to go to position in variable 'pos'
+    }
   
-    if (incomingString == "b") { //back  'b' 98
-      //myservo_left.write(00);              // tell servo to go to position in variable 'pos'
-      //myservo_right.write(180);              // tell servo to go to position in variable 'pos'
-      //Serial.println(incomingString);  
-  }
+    if (98 == command) { //back  'b' 98
+      myservo_left.write(00);              // tell servo to go to position in variable 'pos'
+      myservo_right.write(180);              // tell servo to go to position in variable 'pos'
+    }
   
-    if (incomingString == "l") { //left  'l' 108
-      //myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
-      //myservo_right.write(00);              // tell servo to go to position in variable 'pos'
-    //Serial.println(incomingString);  
-  }
+    if (108 == command) { //left  'l' 108
+      myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
+      myservo_right.write(00);              // tell servo to go to position in variable 'pos'
+    }
   
-    if (incomingString == "r") { //right  'r' 114
-      //myservo_left.write(180);              // tell servo to go to position in variable 'pos'
-      //myservo_right.writeMicroseconds(1460);
-    //Serial.println(incomingString);   
-  } // 1.5 ms stay-st
+    if (114 == command) { //right  'r' 114
+      myservo_left.write(180);              // tell servo to go to position in variable 'pos'
+      myservo_right.writeMicroseconds(1460);
+    } // 1.5 ms stay-st
   
-    if (incomingString == "s"|| incomingString == "c") { //stop  s 163 center c 143
-      myservo_left.write(95); // 1.5 ms stay-still signa
-      myservo_right.write(95); // 1.5 ms stay-still signal  
-     Serial.println(incomingString); 
-  }
+    if (115 == command || 99 == command) { //stop  s 163 center c 143
+      myservo_left.writeMicroseconds(1487); // 1.5 ms stay-still signa
+      myservo_right.writeMicroseconds(1460); // 1.5 ms stay-still signal  
+    }
   
-    if (incomingString == "1") { //head left  '1' 49
-      //myservo_head.write(180); // 1.5 ms stay-still signa
-    //Serial.println(incomingString);   
-  }    
-    if (incomingString == "2") { //head stop  '2'  50
-     // myservo_head.write(120); // 1.5 ms stay-still signa
-   //Serial.println(incomingString);   
-  }
-    if (incomingString == "3") { //head right  '3'  51
-     // myservo_head.write(60); // 1.5 ms stay-still signal   
-  }
- Serial.println("Done"); 
+    if (49 == command) { //head left  '1' 49
+      myservo_head.write(180); // 1.5 ms stay-still signa
+    }    
+    if (50 == command) { //head stop  '2'  50
+      myservo_head.write(120); // 1.5 ms stay-still signa
+    }
+    if (51 == command) { //head right  '3'  51
+      myservo_head.write(60); // 1.5 ms stay-still signa
+    }  
+    
+  delay(10);
 }
